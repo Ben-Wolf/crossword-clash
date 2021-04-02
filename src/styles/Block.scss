@@ -1,0 +1,23 @@
+.block {
+    border: solid black 1px;
+    height: 48px;
+    width: 48px;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.block-black {
+    background-color: black;
+}
+
+.block-clue-root {
+    position: absolute;
+    margin-top: -30px;
+    font-size: 20px;
+}
+
+.block-selected {
+    background-color: yellow;
+}
