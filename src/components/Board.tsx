@@ -21,6 +21,7 @@ export interface IBoardSquare {
 
 export type IBoardSquareInput = IBoardSquare | null;
 
+// TODO: Logic that chooses board
 const getBoardForSelection = (selection?: string): IBoardSquareInput[][] => {
     return SAMPLE_BOARD;
 }
@@ -32,9 +33,23 @@ const getBoardForSelection = (selection?: string): IBoardSquareInput[][] => {
  */
 const Board: React.FC = () => {
     const board: any[] = [];
-    // TODO: Logic that chooses board
     const boardInput = getBoardForSelection();
-    const [currentlySelected, setSelected] = React.useState<number[]>([0, 0]);
+    const [ currentlySelected, setSelected ] = React.useState<number[]>([0, 0]);
+    const [ letterTyped, setLetterTyped ] = React.useState('');
+    const [ selectedWord, setSelectedWord ] = React.useState('1A');
+    const [ maxIndices, setMaxIndices ] = React.useState<number[]>([0, 0]);
+
+    // When a key is pressed navigate to next index in word
+    const onKeyPress = (ev: any) => {
+        if (/[a-zA-Z]/.test(ev.key)) {
+            setLetterTyped(ev.key.toUpperCase());
+            if (selectedWord.length && selectedWord[selectedWord.length - 1] === 'A') {
+                setSelected([currentlySelected[0], currentlySelected[1] + 1]);
+            } else {
+                setSelected([currentlySelected[0] + 1, currentlySelected[1]]);
+            }
+        }
+    };
 
     // bsi for boardSquareInput
     boardInput.forEach((bsiRow, row) => {
@@ -53,10 +68,14 @@ const Board: React.FC = () => {
                     <Block 
                         indices={[row, col]} 
                         currentlySelected={isSelected} 
+                        words={bsi.words.map(word => word.clueNum)}
+                        selectedWord={selectedWord}
                         clueRoot={clueRoot}
                         isSolved={false}
                         isBlack={false}
                         setSelected={setSelected}
+                        setSelectedWord={setSelectedWord}
+                        currentLetter={isSelected ? letterTyped : ''}
                     />
                 );
             } else {
@@ -67,7 +86,7 @@ const Board: React.FC = () => {
     });
 
     return (
-        <div>
+        <div onKeyPress={onKeyPress}>
             { board.map((row, index) => (
                 <div className={`board-row row-${index}`}>
                     { row }

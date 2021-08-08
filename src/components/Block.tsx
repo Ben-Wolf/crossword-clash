@@ -9,6 +9,8 @@ export interface IBlockProps {
     indices?: number[];
     currentlySelected?: boolean;
     setSelected?: (indices: number[]) => void;
+    selectedWord?: string;
+    setSelectedWord?: (newWord: string) => void;
 }
 
 /**
@@ -16,10 +18,9 @@ export interface IBlockProps {
  * Block contains access to all other letter locations in the block (as an indices array)
  */
 const Block: React.FC<IBlockProps> = (props: IBlockProps) => {
-    const { clueRoot, indices, currentlySelected, currentLetter, isBlack } = props;
-    const { setSelected } = props;
+    const { clueRoot, indices, currentlySelected, currentLetter, isBlack, words, selectedWord } = props;
+    const { setSelected, setSelectedWord } = props;
     const [ letter, setLetter ] = React.useState<string>(currentLetter || '');
-    const ref: React.LegacyRef<HTMLDivElement> = React.createRef();
 
     let className = 'block';
     
@@ -30,30 +31,28 @@ const Block: React.FC<IBlockProps> = (props: IBlockProps) => {
     // Setup event handlers
     let onKeyPress = undefined;
     const onClick = () => {
+        if (currentlySelected && words && setSelectedWord) {
+            setSelectedWord(words?.filter(word => word !== selectedWord)[0]);
+        } else if (!currentlySelected && words && setSelectedWord) {
+            setSelectedWord(words[0]);
+        }
         setSelected && indices && setSelected(indices);
     }
 
     if (currentlySelected) {
-
         className += ' block-selected';
-
-        onKeyPress = (ev: any) => {
-            console.log(letter);
-            if (/[a-zA-Z]/.test(ev.key)) {
-                setLetter(ev.key.toUpperCase());
-                indices && setSelected && setSelected([indices[0], indices[1] + 1])
-            }
-        };
+    } else if (selectedWord && words && words.includes(selectedWord)) {
+        className += ' word-selected';
     }
 
     return (
-        <div ref={ref} className={className} onClick={onClick} onKeyPress={onKeyPress} tabIndex={0}>
+        <div className={className} onClick={onClick} tabIndex={0}>
             { clueRoot && 
                 <div className='block-clue-root'>
                     { clueRoot }
                 </div>
             }
-            { letter }
+            { currentLetter }
         </div>
     );
 }
